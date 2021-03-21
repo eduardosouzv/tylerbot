@@ -1,8 +1,7 @@
 const dayjs = require('dayjs');
 const getSchedule = require('./getSchedule');
 
-// const { prefix } = require('../config.json');
-const prefix = process.env.PREFIX;
+const config = require('../config');
 
 const isBetween = require('dayjs/plugin/isBetween');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
@@ -228,12 +227,16 @@ function selectClassByNowDate() {
 }
 
 function isWeekend() {
-  const day = new Date('January 4, 2021 18:05:00').getDay();
+  const day = new Date().getDay();
   return day === 6 || day === 0;
 }
 
+function isEndClass() {
+  return dayjs(new Date().toTimeString(), 'HH:mm').isAfter(classEnd, 'minute') && !isWeekend();
+}
+
 module.exports = {
-  name: `${prefix}aula`,
+  name: `${config.PREFIX}aula`,
   execute(message) {
     selectClassByNowDate();
 
@@ -245,7 +248,7 @@ module.exports = {
       description = '🚗💥🙏☂️🔥';
     }
 
-    if (dayjs(new Date().toTimeString(), 'HH:mm').isAfter(classEnd, 'minute')) {
+    if (isEndClass()) {
       title = 'Acabou a aula';
       description = '💤';
     }
