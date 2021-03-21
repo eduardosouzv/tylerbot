@@ -3,11 +3,13 @@ const getSchedule = require('./getSchedule');
 
 const { prefix } = require('../config.json');
 
-var isBetween = require('dayjs/plugin/isBetween');
-var customParseFormat = require('dayjs/plugin/customParseFormat');
+const isBetween = require('dayjs/plugin/isBetween');
+const customParseFormat = require('dayjs/plugin/customParseFormat');
 
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
+
+let res;
 
 const data = {
   weekDay: '',
@@ -23,14 +25,12 @@ const class5 = dayjs('10:45', 'HH:mm');
 const class6 = dayjs('11:35', 'HH:mm');
 const classEnd = dayjs('12:30', 'HH:mm');
 
-let res;
-
 getSchedule().then((response) => {
   res = response;
 });
 
-function a() {
-  let nowDate = new Date('January 5, 2021 07:24:00');
+function selectClassByNowDate() {
+  const nowDate = new Date();
   switch (dayjs(nowDate).day()) {
     case 1: //segunda
       data.weekDay = 'Segunda-Feira';
@@ -71,7 +71,6 @@ function a() {
         data.numClass = '6';
         break;
       }
-
     case 2: // terca
       data.weekDay = 'Terça-Feira';
       if (dayjs(nowDate.toTimeString(), 'HH:mm').isBetween(class1, class2, 'minute', '[)')) {
@@ -111,6 +110,7 @@ function a() {
         break;
       }
     case 3: // quarta
+      data.weekDay = 'Quarta-Feira';
       if (dayjs(nowDate.toTimeString(), 'HH:mm').isBetween(class1, class2, 'minute', '[)')) {
         // 1 aula
         data.classLink = res.quarta.aula1;
@@ -148,6 +148,7 @@ function a() {
         break;
       }
     case 4: // quinta
+      data.weekDay = 'Quinta-Feira';
       if (dayjs(nowDate.toTimeString(), 'HH:mm').isBetween(class1, class2, 'minute', '[)')) {
         // 1 aula
         data.classLink = res.quinta.aula1;
@@ -184,8 +185,8 @@ function a() {
         data.numClass = '6';
         break;
       }
-
     case 5: // sexta
+      data.weekDay = 'Sexta-Feira';
       if (dayjs(nowDate.toTimeString(), 'HH:mm').isBetween(class1, class2, 'minute', '[)')) {
         // 1 aula
         data.classLink = res.sexta.aula1;
@@ -222,20 +223,37 @@ function a() {
         data.numClass = '6';
         break;
       }
-    default:
-      // 😎🍺
-      break;
   }
 }
+
+function isWeekend() {
+  const day = new Date('January 4, 2021 18:05:00').getDay();
+  return day === 6 || day === 0;
+}
+
 module.exports = {
   name: `${prefix}aula`,
   execute(message) {
-    a();
+    selectClassByNowDate();
+
+    let title = `👺 **${data.weekDay}** | Aula ${data.numClass}`;
+    let description = `\n**Link:   ** ${data.classLink}`;
+
+    if (isWeekend()) {
+      title = '😎 FIM DE SEMANA CARA';
+      description = '🚗💥🙏☂️🔥';
+    }
+
+    if (dayjs(new Date().toTimeString(), 'HH:mm').isAfter(classEnd, 'minute')) {
+      title = 'Acabou a aula';
+      description = '💤';
+    }
+
     message.channel.send({
       embed: {
         color: '#FF0000',
-        title: `👺 **${data.weekDay}** | Aula ${data.numClass}`,
-        description: `\n**Link:   ** ${data.classLink}`,
+        title: title,
+        description: description,
       },
     });
   },
