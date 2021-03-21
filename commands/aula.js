@@ -227,7 +227,7 @@ function selectClassByNowDate() {
 }
 
 function isWeekend() {
-  const day = new Date('January 4, 2021 18:05:00').getDay();
+  const day = new Date().getDay();
   return day === 6 || day === 0;
 }
 
