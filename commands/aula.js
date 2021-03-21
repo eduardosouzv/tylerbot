@@ -1,7 +1,8 @@
 const dayjs = require('dayjs');
 const getSchedule = require('./getSchedule');
 
-const { prefix } = require('../config.json');
+// const { prefix } = require('../config.json');
+const prefix = process.env.PREFIX;
 
 const isBetween = require('dayjs/plugin/isBetween');
 const customParseFormat = require('dayjs/plugin/customParseFormat');
